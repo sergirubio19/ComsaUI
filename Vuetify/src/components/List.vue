@@ -308,7 +308,7 @@
           };  
         }
         else{
-          this.deviceTcpList[this.$route.query.index].connparams = {
+          this.deviceList[this.$route.query.index].connparams = {
               connectorType: 'SERIAL',
               serialBaudrate: Number(this.serialBaudrate),
               serialDatabits: Number(this.serialDatabits),
