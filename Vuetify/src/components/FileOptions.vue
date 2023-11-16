@@ -11,8 +11,6 @@ import { mapState } from 'vuex';
   },
   computed: {
     ...mapState(['deviceMap']),
-    ...mapState(['deviceTcpList']),
-    ...mapState(['deviceRtuList']),
   },
   created() {
   },

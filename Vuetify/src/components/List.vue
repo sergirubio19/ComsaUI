@@ -308,13 +308,14 @@
           };  
         }
         else{
-          this.deviceList[this.$route.query.index].connparams = {
-              connectorType: 'SERIAL',
-              serialBaudrate: Number(this.serialBaudrate),
-              serialDatabits: Number(this.serialDatabits),
-              serialStopbits: Number(this.serialStopbits),
-              serialParity: String(this.serialParity),
-              serialPort: '/dev/ttymxc4',
+          console.log(index)
+          this.deviceList[index].connparams = {
+            connectorType: 'SERIAL',
+            serialBaudrate: Number(this.serialBaudrate),
+            serialDatabits: Number(this.serialDatabits),
+            serialStopbits: Number(this.serialStopbits),
+            serialParity: String(this.serialParity),
+            serialPort: '/dev/ttymxc4',
           };
         }
         this.deviceMap.set(device, this.deviceList[index]);  
@@ -342,11 +343,9 @@
       },
       async erase (index) {
         this.eraseDevicedialog[index] = false;
-        /*
         this.deviceMap.delete(this.deviceList[index].device)
-        //this.deviceMap.delete(this.deviceTcpList[index].device)
         this.deviceList.splice(index, 1)
-        await this.$store.commit('updateFile');*/
+        await this.$store.commit('updateFile');
       },
       editVar(index, vIndex) {
         this.varName = this.deviceList[index].variables[vIndex].name;
@@ -381,13 +380,9 @@
       },
       async eraseVar(index, vIndex) {
         this.eraseVardialog[index][vIndex] = false;
-        /*this.eraseVardialog[index] = false;
         let device = this.deviceMap.get(this.deviceList[index].device)
         device.variables.splice(vIndex, 1);
-        this.deviceMap.set(device.device, device);
-        this.deviceList[index].variables = device.variables;
         await this.$store.commit('updateFile');
-        */
       }
     }
   };

@@ -75,13 +75,10 @@ import { mapState } from 'vuex';
   },
   computed: {
     ...mapState(['deviceMap']),
-    ...mapState(['deviceTcpList']),
-    ...mapState(['deviceRtuList']),
     ...mapState(['deviceList']),
   },
   created() {
     this.deviceList.forEach((element) => this.list.push(element.device));
-    //this.deviceTcpList.concat(this.deviceRtuList).forEach((element) => this.deviceList.push(element.device));
   },
   methods: {  
     async validateVarInfo() {
@@ -189,21 +186,10 @@ import { mapState } from 'vuex';
           precision:  Number(this.thPrecision),
         })
       }
+
       let device = this.deviceMap.get(this.selectedDevice)
       device.variables.push(varData);
-      this.deviceMap.set(this.selectedDevice, device);
-
-      let index = this.deviceList.findIndex((element) => element.device === this.selectedDevice);
-      this.deviceList[index].variables.push(varData);
-
-      if (device.connparams.connectorType === 'TCP'){
-        let index = this.deviceTcpList.findIndex((element) => element.device === this.selectedDevice);
-        this.deviceTcpList[index].variables.push(varData);
-      }
-      else {
-        let index = this.deviceRtuList.findIndex((element) => element.device === this.selectedDevice);
-        this.deviceRtuList[index].variables.push(varData);
-      }
+      
       alert('Variable afegida')
       await this.$store.commit('updateFile');
       

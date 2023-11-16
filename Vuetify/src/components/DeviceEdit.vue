@@ -51,13 +51,10 @@ import { mapState } from 'vuex';
   },
   computed: {
     ...mapState(['deviceMap']),
-    ...mapState(['deviceTcpList']),
-    ...mapState(['deviceRtuList']),
   },
   created() {
     
     if (this.$route.query.type === 'TCP') {
-        console.log(this.deviceTcpList[this.$route.query.index]);
         this.name = this.deviceTcpList[this.$route.query.index].deviceName;
         this.location = this.deviceTcpList[this.$route.query.index].location;
         this.unitId = this.deviceTcpList[this.$route.query.index].unitId;

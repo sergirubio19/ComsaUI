@@ -13,7 +13,7 @@ RUN npm install
 COPY ./Vuetify .
 
 # Build your Vue.js app
-RUN npm run build
+#RUN npm run build
 
 EXPOSE 3000
 

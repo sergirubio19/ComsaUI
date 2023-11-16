@@ -13,7 +13,7 @@ const routes = [
         // route level code-splitting
         // this generates a separate chunk (about.[hash].js) for this route
         // which is lazy-loaded when the route is visited.
-        component: () => import(/* webpackChunkName: "home" */ '@/views/Home.vue'),
+        component: () => import('@/views/Home.vue'),
       },
       {
         path: 'devices',
@@ -21,15 +21,7 @@ const routes = [
         // route level code-splitting
         // this generates a separate chunk (about.[hash].js) for this route
         // which is lazy-loaded when the route is visited.
-        component: () => import(/* webpackChunkName: "home" */ '@/views/DEVICES.vue'),
-      },
-      {
-        path: 'rtu',
-        name: 'RTU List',
-        // route level code-splitting
-        // this generates a separate chunk (about.[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
-        component: () => import(/* webpackChunkName: "home" */ '@/views/RTU.vue'),
+        component: () => import('@/views/DEVICES.vue'),
       },
       {
         path: 'var',
@@ -37,23 +29,7 @@ const routes = [
         // route level code-splitting
         // this generates a separate chunk (about.[hash].js) for this route
         // which is lazy-loaded when the route is visited.
-        component: () => import(/* webpackChunkName: "home" */ '@/views/VAR.vue'),
-      },
-      {
-        path: 'editDevice',
-        name: 'Edit Dev',
-        // route level code-splitting
-        // this generates a separate chunk (about.[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
-        component: () => import(/* webpackChunkName: "home" */ '@/views/EDITD.vue'),
-      },
-      {
-        path: 'editVar',
-        name: 'Edit Var',
-        // route level code-splitting
-        // this generates a separate chunk (about.[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
-        component: () => import(/* webpackChunkName: "home" */ '@/views/EDITV.vue'),
+        component: () => import('@/views/VAR.vue'),
       },
       {
         path: 'yaml',
@@ -71,7 +47,7 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
 })
-
+/*
 router.beforeEach((to, from, next) => {
   if ((to.path === '/editDevice' || to.path === '/editVar') && !store.state.navigationFlag) {
     next('/'); // Redirect to the home route if the user tries to access the /editDevice route
@@ -80,6 +56,6 @@ router.beforeEach((to, from, next) => {
     next(); // Allow navigation for other routes
   }
 });
-
+*/
 
 export default router
