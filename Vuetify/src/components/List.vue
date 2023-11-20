@@ -382,7 +382,7 @@
         this.eraseVardialog[index][vIndex] = false;
         let device = this.deviceMap.get(this.deviceList[index].device)
         device.variables.splice(vIndex, 1);
-        await this.$store.commit('updateFile');
+        await this.$store.commit('updateFile'); 
       }
     }
   };

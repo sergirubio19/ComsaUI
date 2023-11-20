@@ -1,0 +1,20 @@
+version: '3'
+services:
+  vuetify:
+    build:
+      context: ./Vuetify
+      dockerfile: Dockerfile
+    container_name: ui
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./vuetify_data:/Vuetify/data
+  file_server:
+    build:
+      context: ./FileServer
+      dockerfile: Dockerfile
+    container_name: file_server
+    ports:
+      - "4000:4000"
+    volumes:
+      - C:\Users\Sergi\ComsaUI\Vuetify\IOTDevices:/FileServer/data
