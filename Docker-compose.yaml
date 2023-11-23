@@ -7,8 +7,6 @@ services:
     container_name: ui
     ports:
       - "3000:3000"
-    volumes:
-      - ./vuetify_data:/Vuetify/data
   file_server:
     build:
       context: ./FileServer

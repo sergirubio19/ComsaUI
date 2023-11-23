@@ -1,9 +1,11 @@
 <template>
+    
         <v-toolbar flat app elevation="2" color="#E0F7FA">
             <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-            <span text-color="black">Menú</span>
+            <span text-color="black">Menú de configuració de dispositius de lectura</span>
             <v-navigation-drawer color="#E0F7FA" elevation="10" v-model="drawer" app>
                 <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+                <v-btn @click="route('Set Building')" block size="large">Establir Edifici</v-btn>
                 <v-btn @click="route('Add')" block size="large">Afegir dispositiu</v-btn>
                 <v-btn @click="route('Add Var')" block size="large">Afegir Variable</v-btn>
                 <v-btn @click="route('Devices')" block size="large">Dispositius</v-btn>
@@ -22,6 +24,7 @@
         },
         methods: {
             route(route) {
+                this.drawer = false;
                 this.$router.push({ name: route });
             }
         }

@@ -7,7 +7,7 @@ WORKDIR /FileServer
 COPY package*.json .
 
 # Install app dependencies
-RUN npm install --dev
+RUN npm install
 
 # Copy the rest of your app's source code to the container
 COPY . .

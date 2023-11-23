@@ -1,0 +1,165 @@
+building:
+  name: 'Hospital Bellvitge'
+  key: '123'
+  thingsBoardToken: '123asd'
+  dexmaToken: '123ads'
+  dexmaKey: '12345'
+devices:
+  - device: 'Test1@Storage08'
+    deviceName: 'Test1'
+    location: 'Storage08'
+    unitId: 21
+    connparams:
+      connectorType: 'TCP'
+      tcpHost: '10.10.10.12'
+      tcpPort: 9
+    variables:
+      - name: 'asdasd'
+        fc: 4
+        address: '2'
+        quantity: '2'
+        protocol: '2'
+        scalefactor: '1'
+        units_src: '2'
+        active: 1
+        platforms: []
+  - device: 'Sensor12@Storage0888'
+    deviceName: 'Sensor12'
+    location: 'Storage0888'
+    unitId: 22
+    connparams:
+      connectorType: 'SERIAL'
+      serialBaudrate: 9600
+      serialDatabits: 8
+      serialStopbits: 1
+      serialParity: 'none'
+      serialPort: '/dev/ttymxc4'
+    variables:
+      - name: 'Energia Reactiva'
+        fc: 4
+        address: '10'
+        quantity: '2'
+        protocol: 'Int32BE'
+        scalefactor: '2'
+        units_src: 'Wh'
+        active: 1
+        platforms:
+          - name: 'dexma'
+            varid: 19
+            units_dest: 'kWh'
+            scalefactor: 1
+            precision: 2
+      - name: 'Energia Molt Activa'
+        fc: 4
+        address: '50'
+        quantity: '2'
+        protocol: 'Int32BE'
+        scalefactor: '2'
+        units_src: 'Wh'
+        active: 0
+        platforms:
+          - name: 'dexma'
+            varid: 1
+            units_dest: '1'
+            scalefactor: 1
+            precision: 1
+  - device: 'Sensor05@asdas'
+    deviceName: 'Sensor05'
+    location: 'asdas'
+    unitId: 2
+    connparams:
+      connectorType: 'TCP'
+      tcpHost: '10.10.10.12'
+      tcpPort: 502
+    variables:
+      - name: 'Energia Reactiva'
+        fc: 4
+        address: '22'
+        quantity: '22'
+        protocol: '2'
+        scalefactor: '2'
+        units_src: '2'
+        active: 0
+        platforms:
+          - name: 'dexma'
+            varid: 1
+            units_dest: '1'
+            scalefactor: 1
+            precision: 1
+          - name: 'thingsboard'
+            varid: '1'
+            units_dest: '1'
+            scalefactor: 1
+            precision: 1
+  - device: 'Sensor07@Edifici03'
+    deviceName: 'Sensor07'
+    location: 'Edifici03'
+    unitId: 1
+    connparams:
+      connectorType: 'TCP'
+      tcpHost: '123.23.23.232'
+      tcpPort: 502
+    variables:
+      - name: 'Energia Reactiva'
+        fc: 4
+        address: '20'
+        quantity: '4'
+        protocol: 'Int32BE'
+        scalefactor: '2'
+        units_src: 'ppm'
+        active: 1
+        platforms:
+          - name: 'thingsboard'
+            varid: 'EReact'
+            units_dest: 'ppm'
+            scalefactor: 1
+            precision: 2
+  - device: 'Sensor05@Storage01'
+    deviceName: 'Sensor05'
+    location: 'Storage01'
+    unitId: 23
+    connparams:
+      connectorType: 'SERIAL'
+      serialBaudrate: 9600
+      serialDatabits: 8
+      serialStopbits: 1
+      serialParity: 'none'
+      serialPort: '/dev/ttymxc4'
+    variables:
+      - name: 'Eact'
+        fc: 4
+        address: '1'
+        quantity: '1'
+        protocol: '1'
+        scalefactor: '2'
+        units_src: '1'
+        active: 1
+        platforms:
+          - name: 'thingsboard'
+            varid: 'aaa'
+            units_dest: 'ppm'
+            scalefactor: 1
+            precision: 1
+      - name: 'AAA'
+        fc: 3
+        address: '1'
+        quantity: '1'
+        protocol: '1'
+        scalefactor: '1'
+        units_src: '1'
+        active: 0
+        platforms:
+          - name: 'dexma'
+            varid: 1
+            units_dest: '1'
+            scalefactor: 1
+            precision: 1
+      - name: 'AAA'
+        fc: 4
+        address: '2'
+        quantity: '1'
+        protocol: '1'
+        scalefactor: '22'
+        units_src: '1'
+        active: 1
+        platforms: []

@@ -12,7 +12,7 @@
           name: '',
           location: '',
           protocol: '',
-          unitId: undefined,
+          unitId: '',
           serialBaudrate: 9600,
           serialDatabits: 8,
           serialStopbits: 1,
@@ -21,27 +21,27 @@
           port: 502,
           varName: '',
           fc: '04 Input Registers',
-          address: undefined,
-          quantity: undefined,
+          address: '',
+          quantity: '',
           format: '',
-          scaleFactor: undefined,
+          scaleFactor: '',
           unitsSrc: '',
           active: false,
           thingsBoard: false,
           thVarId: '',
           thUnits: '',
-          thScaleFactor: undefined,
-          thPrecision: undefined,
-          dexma: false,
-          dexVarId: undefined,
+          thScaleFactor: '',
+          thPrecision: '',
+          dexma: '',
+          dexVarId: '',
           dexUnits: '',
-          dexScaleFactor: undefined,
-          dexPrecision: undefined,
+          dexScaleFactor: '',
+          dexPrecision: '',
           nameRule: [v => !!v || 'Nom invàlid'],
           locationRule: [v => !!v || 'Localització invàlida'],
           unitIdRule: [
               v => {
-              if (Number.isInteger(Number(v)) && v >= 0) {
+              if (Number.isInteger(Number(v)) && v >= 0 && v != '') {
                   return true;
               }
               return 'Unit ID invàlid';
@@ -63,7 +63,7 @@
           ],
           portRule: [
               v => {
-              if (!Number.isInteger(Number(v)) || v < 0 || v > 65535 || v == undefined) {
+              if (!Number.isInteger(Number(v)) || v < 0 || v > 65535 || v == undefined || v == '') {
                   return 'Port invàlid';
               }
               return true;
@@ -72,7 +72,7 @@
           varNameRule: [v => !!v || 'Nom invàlid'],
           addressRule: [
               v => {
-              if (Number.isInteger(Number(v)) && v >= 0) {
+              if (Number.isInteger(Number(v)) && v >= 0 && v != '') {
                   return true;
               }
               return 'Adreça invàlida';
@@ -80,7 +80,7 @@
           ],
           quantityRule: [
               v => {
-              if (Number.isInteger(Number(v)) && v >= 0) {
+              if (Number.isInteger(Number(v)) && v >= 0 && v != '') {
                   return true;
               }
               return 'Quantitat invàlida';
@@ -89,7 +89,7 @@
           formatRule: [v => !!v || 'Format invàlid'],
           scaleRule: [
               v => {
-              if (v >= 0) {
+              if (v >= 0 && v != '') {
                   return true;
               }
               return 'Factor d\'escala invàlid';
@@ -99,7 +99,7 @@
           thIdRule: [v => !!v || 'Id invàlid'],
           dexIdRule: [
               v => {
-              if (Number.isInteger(Number(v)) && v >= 0) {
+              if (Number.isInteger(Number(v)) && v >= 0 && v != '') {
                   return true;
               }
               return 'Id invàlid';
@@ -107,7 +107,7 @@
           ],
           precissionRule: [
               v => {
-              if (Number.isInteger(Number(v)) && v >= 0) {
+              if (Number.isInteger(Number(v)) && v >= 0 && v != '') {
                   return true;
               }
               return 'Precissió invàlida';
@@ -141,25 +141,26 @@
         if (this.varName == '') {
           return
         }
-        if (!Number.isInteger(Number(this.address)) || this.address < 0) {
+        if (!Number.isInteger(Number(this.address)) || Number(this.address) < 0 || !!this.address === false) {
           return 
         }
-        if (!Number.isInteger(Number(this.quantity)) || this.quantity < 0) {
+        if (!Number.isInteger(Number(this.quantity)) || Number(this.quantity) < 0 || !!this.quantity === false) {
           return 
         }
         if (this.format == '') {
           return
         }
-        if (this.scaleFactor < 0) {
+        if (Number(this.scaleFactor) < 0  || this.scaleFactor == '' || !!this.scaleFactor === false) {
           return
         }
         if (this.unitsSrc == '') {
           return
         }
+        /*
         if (this.thingsBoard == false && this.dexma == false) {
           alert('Selecciona almenys una plataforma')
           return
-        }
+        }*/
 
         if (this.thingsBoard) {
           if (this.thVarId == '') {
@@ -177,15 +178,15 @@
           if (this.thUnits == '') {
             return
           }
-          if (this.thScaleFactor < 0) {
+          if (Number(this.thScaleFactor) < 0 || !!this.thScaleFactor === false) {
             return
           }
-          if (!Number.isInteger(Number(this.thPrecision)) || this.thPrecision < 0) {
+          if (!Number.isInteger(Number(this.thPrecision)) || Number(this.thPrecision) < 0 || !!this.thPrecision === false) {
             return 
           }
         }
         if (this.dexma) {
-          if (!Number.isInteger(Number(this.dexVarId)) || this.dexVarId < 0) {
+          if (!Number.isInteger(Number(this.dexVarId)) || Number(this.dexVarId) < 0 || !!this.dexVarId === false) {
             return
           }
           for (let i = 0; i < selectedDevice.variables.length; i++) {
@@ -199,10 +200,10 @@
           if (this.dexUnits == '') {
             return
           }
-          if (this.dexScaleFactor < 0) {
+          if (Number(this.dexScaleFactor) < 0 || !!this.dexScaleFactor === false) {
             return
           }
-          if (!Number.isInteger(Number(this.dexPrecision)) || this.dexPrecision < 0) {
+          if (!Number.isInteger(Number(this.dexPrecision)) || Number(this.dexPrecision) < 0 || !!this.dexPrecision === false) {
             return 
           }
         }
@@ -212,9 +213,16 @@
         } else{
           on = 0;
         }
+        let functionCode;
+        if (this.fc === '04 Input Registers') {
+          functionCode = 4;
+        }
+        else {
+          functionCode = 3;
+        }
         let varData = {
           name: this.varName,
-          fc: this.fc,
+          fc: Number(functionCode),
           address: this.address,
           quantity: this.quantity,
           protocol: this.format,
@@ -259,11 +267,11 @@
         if (this.location == '') {
         return false;
         }
-        if (!Number.isInteger(Number(this.unitId)) || this.uniId < 0) {
+        if (!Number.isInteger(Number(this.unitId)) || Number(this.unitId) < 0 || !!this.unitId === false) {
           return false;
         }
-        if (this.protocol == undefined) {
-        return false;
+        if (this.protocol == undefined || this.protocol == '') {
+          return false;
         }
         if (this.protocol == 'Modbus RTU') {
           if (this.serialBaudrate == undefined) {
@@ -283,7 +291,7 @@
           if (!this.host.match(ipAddressPattern)) {
             return false;
           }
-          if (this.port < 0 || this.port > 65535 || this.port == undefined) {
+          if (Number(this.port) < 0 || Number(this.port) > 65535 || !!this.port === false) {
             return false;
           }
         }
@@ -308,13 +316,20 @@
           };  
         }
         else{
-          console.log(index)
+          let parity;
+          if (this.serialParity === 'NO') {
+            parity = 'none';
+          } else if (this.serialParity === 'PARELL') {
+            parity = 'even';
+          } else {
+            parity = 'odd';
+          }
           this.deviceList[index].connparams = {
             connectorType: 'SERIAL',
             serialBaudrate: Number(this.serialBaudrate),
             serialDatabits: Number(this.serialDatabits),
             serialStopbits: Number(this.serialStopbits),
-            serialParity: String(this.serialParity),
+            serialParity: String(parity),
             serialPort: '/dev/ttymxc4',
           };
         }
@@ -327,6 +342,12 @@
         this.name = this.deviceList[index].deviceName;
         this.location = this.deviceList[index].location;
         this.unitId = this.deviceList[index].unitId;
+        this.host = '';
+        this.port = 502;
+        this.serialBaudrate = 9600;
+        this.serialDatabits = 8;
+        this.stopBits = 1;
+        this.serialParity = 'NO';
         if (this.deviceList[index].connparams.connectorType == 'TCP') {
           this.protocol = 'Modbus TCP';
           this.host = this.deviceList[index].connparams.tcpHost;
@@ -337,7 +358,13 @@
           this.serialBaudrate = this.deviceList[index].connparams.serialBaudrate;
           this.serialDatabits = this.deviceList[index].connparams.serialDatabits;
           this.stopBits = this.deviceList[index].connparams.serialStopbits;
-          this.serialParity = this.deviceList[index].connparams.serialParity;
+          if (this.deviceList[index].connparams.serialParity == 'none') {
+            this.serialParity = 'NO'
+          } else if (this.deviceList[index].connparams.serialParity == 'even') {
+            this.serialParity = 'PARELL'
+          } else {
+            this.serialParity = 'IMPARELL'
+          }
         }
         this.editDevicedialog[index] = true;
       },
@@ -349,7 +376,12 @@
       },
       editVar(index, vIndex) {
         this.varName = this.deviceList[index].variables[vIndex].name;
-        this.fc = this.deviceList[index].variables[vIndex].fc;
+        if (this.deviceList[index].variables[vIndex].fc == 3) {
+          this.fc = '03 Holding Registers';
+        }
+        else {
+          this.fc = '04 Input Registers';
+        }
         this.address = this.deviceList[index].variables[vIndex].address;
         this.quantity = this.deviceList[index].variables[vIndex].quantity;
         this.format = this.deviceList[index].variables[vIndex].protocol;
@@ -361,6 +393,16 @@
         else {
           this.active = false;
         }
+        this.dexma = false;
+        this.dexVarId = '';
+        this.dexUnits = '';
+        this.dexScaleFactor = '';
+        this.dexPrecision = '';
+        this.thingsBoard = false;
+        this.thVarId = '';
+        this.thUnits = '';
+        this.thScaleFactor = '';
+        this.thPrecision = '';
         for (let i = 0; i < this.deviceList[index].variables[vIndex].platforms.length; i++) {
           if (this.deviceList[index].variables[vIndex].platforms[i].name == 'dexma') {
             this.dexma = true;
@@ -389,16 +431,15 @@
 </script>
 
 <template>
-  <h1 class="font-weight-bold">DISPOSITIUS</h1>
-  <v-row class="mr-16 mb-2">
-    <v-col cols="2"></v-col>
-    <v-col class="" cols="4">
+  <h1 class="font-weight-bold">Llista de dispositius</h1>
+  <v-row class="mb-2">
+    <v-col class="ml-12" cols="5">
       <h2>Dispositiu</h2>
     </v-col>
     <v-col class="ml-10" cols="1">
      <h2> ID</h2>
     </v-col>
-    <v-col class="ml-n8" cols="1">
+    <v-col class="ml-n8" cols="2">
       <h2>Protocol</h2>
     </v-col>
   </v-row>
@@ -408,16 +449,19 @@
           hide-actions 
           rounded="lg"
           >
-          <v-container>
+          <v-container class="list">
             <v-row>
               <v-col class="" cols="6">
-                <h2>{{ device.device }}</h2>
+                <h3>{{ device.device }}</h3>
               </v-col>
-              <v-col class="" cols="1">
-                <h2>{{ device.unitId }}</h2>
+              <v-col class="ml-n4" cols="1">
+                <h3>{{ device.unitId }}</h3>
               </v-col>
-              <v-col class="" cols="2">
-                <h2>{{ device.connparams.connectorType }}</h2>
+              <v-col v-if="device.connparams.connectorType === 'TCP'" class="ml-n6" cols="2">
+                <h3>Modbus TCP</h3>
+              </v-col>
+              <v-col v-else class="ml-n6" cols="2">
+                <h3>Modbus RTU</h3>
               </v-col>
               <v-col class="" cols="3">
                 <span class="pa-3">
@@ -437,12 +481,11 @@
           </v-container>
       </v-expansion-panel-title>
       <v-expansion-panel-text class="mt-6" rounded="lg">
-        <v-row class="mr-16 mb-2">
-          <v-col cols="2"></v-col>
-          <v-col class="" cols="2">
+        <v-row class="mb-2">
+          <v-col class="ml-5" cols="6">
             <h2>Variable</h2>
           </v-col>
-          <v-col class="ml-10" cols="2">
+          <v-col class="ml-n10" cols="2">
           <h2> Activa</h2>
           </v-col>
           <v-col class="ml-n8" cols="1">
@@ -451,16 +494,21 @@
         </v-row>
         <v-container>
           <v-row v-for="(variable, vIndex) in device.variables" :key="vIndex">
-            <v-col cols="4">
+            <v-col cols="6">
               <h3>{{ variable.name }}</h3>
             </v-col>
-            <v-col cols="2" class="mt-n4">
+            <v-col cols="2" class="ml-n8 mt-n4">
               <v-checkbox :model-value="true" disabled v-if="variable.active == 1"></v-checkbox>
               <v-checkbox :model-value="false" disabled v-else></v-checkbox>
             </v-col>
-              <v-col class="mt-n4" v-for="(platform, pIndex) in variable.platforms" :key="pIndex">
-                <v-checkbox v-if="variable.platforms[pIndex].name == 'dexma'" :model-value="true" disabled>Dexma</v-checkbox>
-                <v-checkbox v-if="variable.platforms[pIndex].name == 'thingsboard'" :model-value="true" disabled>Thingsboard</v-checkbox>
+              <v-col v-if="variable.platforms.length == 0">
+                <h3>
+                  CAP
+                </h3>
+              </v-col>
+              <v-col class="ml-n3" v-for="(platform, pIndex) in variable.platforms" :key="pIndex">
+                <h3 class="" v-if="variable.platforms[pIndex].name == 'dexma'">Dexma</h3>
+                <h3 v-if="variable.platforms[pIndex].name == 'thingsboard'">Thingsboard</h3>
               </v-col>
             <span class="d-flex justify-space-evenly">
               <v-btn class="mr-2" size="small" @click.stop="editVar(index, vIndex)" rounded="lg">
@@ -767,7 +815,7 @@
               ref="serialParity"
               name="serialParity"
               label="Paritat"
-              :items="['NO', 'PAR', 'IMPAR']"
+              :items="['NO', 'PARELL', 'IMPARELL']"
             ></v-select>
             <v-text-field
               rounded="lg"
@@ -817,5 +865,8 @@
     font-size: 2.6rem;  
     top: -20px;
     position: relative;  
+  }
+  h2 {
+    font-weight: light;
   }
 </style>

@@ -39,7 +39,7 @@ import { mapState } from 'vuex';
       locationRule: [v => !!v || 'Localització invàlida'],
       unitIdRule: [
         v => {
-          if (Number.isInteger(Number(v)) && v >= 0) {
+          if (Number.isInteger(Number(v)) && v >= 0 && v != '') {
             return true;
           }
           return 'Unit ID invàlid';
@@ -61,7 +61,7 @@ import { mapState } from 'vuex';
       ],
       portRule: [
         v => {
-          if (!Number.isInteger(Number(v)) || v < 0 || v > 65535 || v == undefined) {
+          if (!Number.isInteger(Number(v)) || v < 0 || v > 65535 || v == undefined || v == '') {
             return 'Port invàlid';
           }
           return true;
@@ -70,7 +70,7 @@ import { mapState } from 'vuex';
       varNameRule: [v => !!v || 'Nom invàlid'],
       addressRule: [
         v => {
-          if (Number.isInteger(Number(v)) && v >= 0) {
+          if (Number.isInteger(Number(v)) && v >= 0 && v != '') {
             return true;
           }
           return 'Adreça invàlida';
@@ -78,7 +78,7 @@ import { mapState } from 'vuex';
       ],
       quantityRule: [
         v => {
-          if (Number.isInteger(Number(v)) && v >= 0) {
+          if (Number.isInteger(Number(v)) && v >= 0 && v != '') {
             return true;
           }
           return 'Quantitat invàlida';
@@ -87,7 +87,7 @@ import { mapState } from 'vuex';
       formatRule: [v => !!v || 'Format invàlid'],
       scaleRule: [
         v => {
-          if (v >= 0) {
+          if (v >= 0 && v != '') {
             return true;
           }
           return 'Factor d\'escala invàlid';
@@ -97,7 +97,7 @@ import { mapState } from 'vuex';
       thIdRule: [v => !!v || 'Id invàlid'],
       dexIdRule: [
         v => {
-          if (Number.isInteger(Number(v)) && v >= 0) {
+          if (Number.isInteger(Number(v)) && v >= 0 && v != '') {
             return true;
           }
           return 'Id invàlid';
@@ -105,7 +105,7 @@ import { mapState } from 'vuex';
       ],
       precissionRule: [
         v => {
-          if (Number.isInteger(Number(v)) && v >= 0) {
+          if (Number.isInteger(Number(v)) && v >= 0 && v != '') {
             return true;
           }
           return 'Precissió invàlida';
@@ -121,25 +121,26 @@ import { mapState } from 'vuex';
       if (this.varName == '') {
         return
       }
-      if (!Number.isInteger(Number(this.address)) || this.address < 0) {
+      if (!Number.isInteger(Number(this.address)) || Number(this.address) < 0 || !!this.address === false) {
         return 
       }
-      if (!Number.isInteger(Number(this.quantity)) || this.quantity < 0) {
+      if (!Number.isInteger(Number(this.quantity)) || Number(this.address) < 0 || !!this.quantity === false) {
         return 
       }
       if (this.format == '') {
         return
       }
-      if (this.scaleFactor < 0) {
+      if (Number(this.scaleFactor) < 0  || !!this.scaleFactor === false) {
         return
       }
       if (this.unitsSrc == '') {
         return
       }
+      /*
       if (this.thingsBoard == false && this.dexma == false) {
         alert('Selecciona almenys una plataforma')
         return
-      }
+      }*/
       let device = this.name + '@' + this.location;
       if (this.thingsBoard) {
         if (this.thVarId == '') {
@@ -157,15 +158,15 @@ import { mapState } from 'vuex';
         if (this.thUnits == '') {
           return
         }
-        if (this.thScaleFactor < 0) {
+        if (Number(this.thScaleFactor) < 0  || !!this.scaleFactor === false) {
           return
         }
-        if (!Number.isInteger(Number(this.thPrecision)) || this.thPrecision < 0) {
+        if (!Number.isInteger(Number(this.thPrecision)) || Number(this.thPrecision) < 0 || !!this.thPrecision === false) {
           return 
         }
       }
       if (this.dexma) {
-        if (!Number.isInteger(Number(this.dexVarId)) || this.dexVarId < 0) {
+        if (!Number.isInteger(Number(this.dexVarId)) || Number(this.dexVarId) < 0 || !!this.dexVarId === false) {
           return
         }
         if (this.deviceMap.has(device)) {
@@ -180,10 +181,10 @@ import { mapState } from 'vuex';
         if (this.dexUnits == '') {
           return
         }
-        if (this.dexScaleFactor < 0) {
+        if (Number(this.dexScaleFactor) < 0 || !!this.dexScaleFactor === false) {
           return
         }
-        if (!Number.isInteger(Number(this.dexPrecision)) || this.dexPrecision < 0) {
+        if (!Number.isInteger(Number(this.dexPrecision)) || Number(this.dexPrecision) < 0 || !!this.dexPrecision === false) {
           return 
         }
       }
@@ -193,9 +194,16 @@ import { mapState } from 'vuex';
       } else{
         on = 0;
       }
+      let functionCode;
+      if (this.fc === '04 Input Registers') {
+        functionCode = 4;
+      }
+      else {
+        functionCode = 3;
+      }
       let varData = {
         name: this.varName,
-        fc: this.fc,
+        fc: Number(functionCode),
         address: this.address,
         quantity: this.quantity,
         protocol: this.format,
@@ -233,22 +241,22 @@ import { mapState } from 'vuex';
   
       this.varName = '';
       this.fc = '04 Input Registers';
-      this.address = undefined;
-      this.quantity = undefined;
+      this.address = '';
+      this.quantity = '';
       this.format = '';
-      this.scaleFactor = undefined;
+      this.scaleFactor = '';
       this.unitsSrc = '';
       this.active = false;
       this.thingsBoard = false;
       this.dexma = false;
       this.thVarId = '';
       this.thUnits = '';
-      this.thScaleFactor = undefined;
-      this.thPrecision = undefined;
-      this.dexVarId = undefined;
+      this.thScaleFactor = '';
+      this.thPrecision = '';
+      this.dexVarId = '';
       this.dexUnits = '';
-      this.dexScaleFactor = undefined;
-      this.dexPrecision = undefined;
+      this.dexScaleFactor = '';
+      this.dexPrecision = '';
 
     },
     validateInfo(){
@@ -258,10 +266,11 @@ import { mapState } from 'vuex';
       if (this.location == '') {
       return false;
       }
-      if (!Number.isInteger(Number(this.unitId)) || this.uniId < 0) {
+      console.log(this.unitId)
+      if (!Number.isInteger(Number(this.unitId)) || Number(this.unitId) < 0 || !!this.unitId === false) {
         return false;
       }
-      if (this.protocol == undefined) {
+      if (this.protocol == undefined || this.protocol == '') {
       return false;
       }
       if (this.protocol == 'Modbus RTU') {
@@ -282,7 +291,7 @@ import { mapState } from 'vuex';
         if (!this.host.match(ipAddressPattern)) {
           return false;
         }
-        if (this.port < 0 || this.port > 65535 || this.port == undefined) {
+        if (Number(this.port) < 0 || Number(this.port) > 65535 || !!this.port === false) {
           return false;
         }
       }
@@ -293,6 +302,14 @@ import { mapState } from 'vuex';
       }
 
       if (this.protocol === 'Modbus RTU') {
+        let parity;
+        if (this.serialParity === 'NO') {
+          parity = 'none';
+        } else if (this.serialParity === 'PARELL') {
+          parity = 'even';
+        } else {
+          parity = 'odd';
+        }
         this.formData = [
           {
             device: String(this.name + '@' + this.location),
@@ -304,7 +321,7 @@ import { mapState } from 'vuex';
               serialBaudrate: Number(this.serialBaudrate),
               serialDatabits: Number(this.serialDatabits),
               serialStopbits: Number(this.serialStopbits),
-              serialParity: String(this.serialParity),
+              serialParity: String(parity),
               serialPort: '/dev/ttymxc4',
             },
             variables: [
@@ -413,7 +430,7 @@ import { mapState } from 'vuex';
         ref="serialParity"
         name="serialParity"
         label="Paritat"
-        :items="['NO', 'PAR', 'IMPAR']"
+        :items="['NO', 'PARELL', 'IMPARELL']"
       ></v-select>
       <v-text-field
         rounded="lg"

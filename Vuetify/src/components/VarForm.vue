@@ -30,7 +30,7 @@ import { mapState } from 'vuex';
         varNameRule: [v => !!v || 'Nom invàlid'],
         addressRule: [
             v => {
-            if (Number.isInteger(Number(v)) && v >= 0) {
+            if (Number.isInteger(Number(v)) && v >= 0 && v != '') {
                 return true;
             }
             return 'Adreça invàlida';
@@ -38,7 +38,7 @@ import { mapState } from 'vuex';
         ],
         quantityRule: [
             v => {
-            if (Number.isInteger(Number(v)) && v >= 0) {
+            if (Number.isInteger(Number(v)) && v >= 0 && v != '') {
                 return true;
             }
             return 'Quantitat invàlida';
@@ -47,7 +47,7 @@ import { mapState } from 'vuex';
         formatRule: [v => !!v || 'Format invàlid'],
         scaleRule: [
             v => {
-            if (v >= 0) {
+            if (v >= 0 && v != '') {
                 return true;
             }
             return 'Factor d\'escala invàlid';
@@ -57,7 +57,7 @@ import { mapState } from 'vuex';
         thIdRule: [v => !!v || 'Id invàlid'],
         dexIdRule: [
             v => {
-            if (Number.isInteger(Number(v)) && v >= 0) {
+            if (Number.isInteger(Number(v)) && v >= 0 && v != '') {
                 return true;
             }
             return 'Id invàlid';
@@ -65,7 +65,7 @@ import { mapState } from 'vuex';
         ],
         precissionRule: [
             v => {
-            if (Number.isInteger(Number(v)) && v >= 0) {
+            if (Number.isInteger(Number(v)) && v >= 0 && v != '') {
                 return true;
             }
             return 'Precissió invàlida';
@@ -88,25 +88,26 @@ import { mapState } from 'vuex';
       if (this.varName == '') {
         return
       }
-      if (!Number.isInteger(Number(this.address)) || this.address < 0) {
+      if (!Number.isInteger(Number(this.address)) || Number(this.address) < 0 || !!this.address === false) {
         return 
       }
-      if (!Number.isInteger(Number(this.quantity)) || this.quantity < 0) {
+      if (!Number.isInteger(Number(this.quantity)) || Number(this.quantity) < 0 || !!this.quantity === false) {
         return 
       }
       if (this.format == '') {
         return
       }
-      if (this.scaleFactor < 0) {
+      if (Number(this.scaleFactor < 0) || !!this.scaleFactor === false) {
         return
       }
       if (this.unitsSrc == '') {
         return
       }
+      /*
       if (this.thingsBoard == false && this.dexma == false) {
         alert('Selecciona almenys una plataforma')
         return
-      }
+      }*/
       if (this.thingsBoard) {
         if (this.thVarId == '') {
           return
@@ -121,15 +122,15 @@ import { mapState } from 'vuex';
         if (this.thUnits == '') {
           return
         }
-        if (this.thScaleFactor < 0) {
+        if (Number(this.thScaleFactor) < 0  || !!this.thScaleFactor === false) {
           return
         }
-        if (!Number.isInteger(Number(this.thPrecision)) || this.thPrecision < 0) {
+        if (!Number.isInteger(Number(this.thPrecision)) || Number(this.thPrecision) < 0 || !!this.thPrecision === false) {
           return 
         }
       }
       if (this.dexma) {
-        if (!Number.isInteger(Number(this.dexVarId)) || this.dexVarId < 0) {
+        if (!Number.isInteger(Number(this.dexVarId)) || Number(this.dexVarId) < 0 || !!this.dexVarId === false) {
           return
         }
         let d = this.deviceMap.get(this.selectedDevice)
@@ -142,10 +143,10 @@ import { mapState } from 'vuex';
         if (this.dexUnits == '') {
           return
         }
-        if (this.dexScaleFactor < 0) {
+        if (Number(this.dexScaleFactor) < 0) {
           return
         }
-        if (!Number.isInteger(Number(this.dexPrecision)) || this.dexPrecision < 0) {
+        if (!Number.isInteger(Number(this.dexPrecision)) || Number(this.dexPrecision) < 0 || !!this.dexPrecision === false) {
           return 
         }
       }
@@ -155,9 +156,16 @@ import { mapState } from 'vuex';
       } else{
         on = 0;
       }
+      let functionCode;
+      if (this.fc === '04 Input Registers') {
+        functionCode = 4;
+      }
+      else {
+        functionCode = 3;
+      }
       let varData = {
         name: this.varName,
-        fc: this.fc,
+        fc:  Number(functionCode),
         address: this.address,
         quantity: this.quantity,
         protocol: this.format,
