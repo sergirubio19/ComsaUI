@@ -10,6 +10,7 @@
           editVardialog: [],
           eraseVardialog: [],
           name: '',
+          type: '',
           location: '',
           protocol: '',
           unitId: '',
@@ -20,10 +21,12 @@
           host: '',
           port: 502,
           varName: '',
+          varAlias: '',
           fc: '04 Input Registers',
           address: '',
           quantity: '',
           format: '',
+          byteSwap: false,
           scaleFactor: '',
           unitsSrc: '',
           active: false,
@@ -38,6 +41,7 @@
           dexScaleFactor: '',
           dexPrecision: '',
           nameRule: [v => !!v || 'Nom invàlid'],
+          typeRule: [v => !!v || 'Tipus invàlid'],
           locationRule: [v => !!v || 'Localització invàlida'],
           unitIdRule: [
               v => {
@@ -70,6 +74,7 @@
               },
           ],
           varNameRule: [v => !!v || 'Nom invàlid'],
+          varAliasRule: [v => !!v || 'Alias invàlid'],
           addressRule: [
               v => {
               if (Number.isInteger(Number(v)) && v >= 0 && v != '') {
@@ -135,10 +140,13 @@
     },
     methods: {     
       ...mapMutations(['updateFile']),
-      ...mapMutations(['setNavigationFlag']),
+      ...mapState(['gateway']),
 
       async validateVarInfo(selectedDevice, index, vIndex) {
         if (this.varName == '') {
+          return
+        }
+        if (this.varAlias == '') {
           return
         }
         if (!Number.isInteger(Number(this.address)) || Number(this.address) < 0 || !!this.address === false) {
@@ -156,13 +164,11 @@
         if (this.unitsSrc == '') {
           return
         }
-        /*
-        if (this.thingsBoard == false && this.dexma == false) {
-          alert('Selecciona almenys una plataforma')
-          return
-        }*/
-
         if (this.thingsBoard) {
+          if (this.gateway === undefined) {
+            alert('Emplena el token de Thingsboard a la pàgina d\'informació de l\'edifici si vols poder visualtizar variables a Thingsboard')
+            return;
+          }
           if (this.thVarId == '') {
             return
           }
@@ -180,12 +186,16 @@
           }
           if (Number(this.thScaleFactor) < 0 || !!this.thScaleFactor === false) {
             return
-          }
+          }/*
           if (!Number.isInteger(Number(this.thPrecision)) || Number(this.thPrecision) < 0 || !!this.thPrecision === false) {
             return 
-          }
+          }*/
         }
         if (this.dexma) {
+          if (this.gateway === undefined) {
+            alert('Emplena el token de Dexma a la pàgina d\'informació de l\'edifici si vols poder visualtizar variables a Dexma')
+            return;
+          }
           if (!Number.isInteger(Number(this.dexVarId)) || Number(this.dexVarId) < 0 || !!this.dexVarId === false) {
             return
           }
@@ -202,16 +212,10 @@
           }
           if (Number(this.dexScaleFactor) < 0 || !!this.dexScaleFactor === false) {
             return
-          }
+          }/*
           if (!Number.isInteger(Number(this.dexPrecision)) || Number(this.dexPrecision) < 0 || !!this.dexPrecision === false) {
             return 
-          }
-        }
-        let on;
-        if (this.active){
-          on = 1;
-        } else{
-          on = 0;
+          }*/
         }
         let functionCode;
         if (this.fc === '04 Input Registers') {
@@ -222,13 +226,15 @@
         }
         let varData = {
           name: this.varName,
+          alias: this.varAlias,
           fc: Number(functionCode),
           address: this.address,
           quantity: this.quantity,
-          protocol: this.format,
-          scalefactor: this.scaleFactor,
-          units_src: this.unitsSrc,
-          active: on,
+          format: this.format,
+          byteSwap: this.byteSwap,
+          scaleFactor: this.scaleFactor,
+          unitsSrc: this.unitsSrc,
+          active: this.active,
           platforms: [
           ],
         };
@@ -236,24 +242,22 @@
         if(this.dexma) {
           varData.platforms.push({
             name: 'dexma',
-            varid:  Number(this.dexVarId),
-            units_dest: this.dexUnits,
-            scalefactor:  Number(this.dexScaleFactor),
-            precision:  Number(this.dexPrecision),
+            varId:  Number(this.dexVarId),
+            unitsDest: this.dexUnits,
+            scaleFactor:  Number(this.dexScaleFactor)
           })
         }
         if (this.thingsBoard) {
           varData.platforms.push({
             name: 'thingsboard',
-            varid: this.thVarId,
-            units_dest: this.thUnits,
-            scalefactor: Number(this.thScaleFactor),
-            precision:  Number(this.thPrecision),
+            varId: this.thVarId,
+            unitsDest: this.thUnits,
+            scaleFactor: Number(this.thScaleFactor)
           })
         }
 
         selectedDevice.variables[vIndex] = varData;
-        this.deviceMap.set(selectedDevice.device, selectedDevice);
+        this.deviceMap.set(selectedDevice.name, selectedDevice);
         this.deviceList[index].variables[vIndex] = varData;
 
         alert('Variable editada')
@@ -262,6 +266,9 @@
       },
       async validateInfo(index){
         if (this.name == '') {
+        return false;
+        }
+        if (this.type == '') {
         return false;
         }
         if (this.location == '') {
@@ -296,7 +303,7 @@
           }
         }
         let device = this.name + '@' + this.location;
-        let device2 = this.deviceList[index].device;
+        let device2 = this.deviceList[index].name;
         
         if (device != device2) {
           if (this.deviceMap.has(device)) {
@@ -304,18 +311,21 @@
               return;
           }
         }
-        this.deviceList[index].device = String(this.name + '@' + this.location);
-        this.deviceList[index].deviceName = String(this.name);
+        this.deviceList[index].name = String(this.name + '@' + this.location);
+        this.deviceList[index].code = String(this.name);
         this.deviceList[index].location = String(this.location);
+        this.deviceList[index].type = String(this.type);
         this.deviceList[index].unitId = Number(this.unitId);
         if (this.protocol === 'Modbus TCP') {
-          this.deviceList[index].connparams = {
+          this.deviceList[index].protocol = 'modbus_tcp';
+          this.deviceList[index].connParams = {
               connectorType: 'TCP',
               tcpHost: String(this.host),
               tcpPort: Number(this.port),
           };  
         }
         else{
+          this.deviceList[index].protocol = 'modbus_rtu';
           let parity;
           if (this.serialParity === 'NO') {
             parity = 'none';
@@ -324,7 +334,7 @@
           } else {
             parity = 'odd';
           }
-          this.deviceList[index].connparams = {
+          this.deviceList[index].connParams = {
             connectorType: 'SERIAL',
             serialBaudrate: Number(this.serialBaudrate),
             serialDatabits: Number(this.serialDatabits),
@@ -339,8 +349,9 @@
         this.editDevicedialog[index] = false;
       },
       edit (index) {
-        this.name = this.deviceList[index].deviceName;
+        this.name = this.deviceList[index].code;
         this.location = this.deviceList[index].location;
+        this.type = this.deviceList[index].type;
         this.unitId = this.deviceList[index].unitId;
         this.host = '';
         this.port = 502;
@@ -348,19 +359,19 @@
         this.serialDatabits = 8;
         this.stopBits = 1;
         this.serialParity = 'NO';
-        if (this.deviceList[index].connparams.connectorType == 'TCP') {
+        if (this.deviceList[index].connParams.connectorType == 'TCP') {
           this.protocol = 'Modbus TCP';
-          this.host = this.deviceList[index].connparams.tcpHost;
-          this.port = this.deviceList[index].connparams.tcpPort;
+          this.host = this.deviceList[index].connParams.tcpHost;
+          this.port = this.deviceList[index].connParams.tcpPort;
         }
         else {
           this.protocol = 'Modbus RTU';
-          this.serialBaudrate = this.deviceList[index].connparams.serialBaudrate;
-          this.serialDatabits = this.deviceList[index].connparams.serialDatabits;
-          this.stopBits = this.deviceList[index].connparams.serialStopbits;
-          if (this.deviceList[index].connparams.serialParity == 'none') {
+          this.serialBaudrate = this.deviceList[index].connParams.serialBaudrate;
+          this.serialDatabits = this.deviceList[index].connParams.serialDatabits;
+          this.stopBits = this.deviceList[index].connParams.serialStopbits;
+          if (this.deviceList[index].connParams.serialParity == 'none') {
             this.serialParity = 'NO'
-          } else if (this.deviceList[index].connparams.serialParity == 'even') {
+          } else if (this.deviceList[index].connParams.serialParity == 'even') {
             this.serialParity = 'PARELL'
           } else {
             this.serialParity = 'IMPARELL'
@@ -370,12 +381,13 @@
       },
       async erase (index) {
         this.eraseDevicedialog[index] = false;
-        this.deviceMap.delete(this.deviceList[index].device)
+        this.deviceMap.delete(this.deviceList[index].name)
         this.deviceList.splice(index, 1)
         await this.$store.commit('updateFile');
       },
       editVar(index, vIndex) {
         this.varName = this.deviceList[index].variables[vIndex].name;
+        this.varAlias = this.deviceList[index].variables[vIndex].alias;
         if (this.deviceList[index].variables[vIndex].fc == 3) {
           this.fc = '03 Holding Registers';
         }
@@ -384,15 +396,11 @@
         }
         this.address = this.deviceList[index].variables[vIndex].address;
         this.quantity = this.deviceList[index].variables[vIndex].quantity;
-        this.format = this.deviceList[index].variables[vIndex].protocol;
-        this.scaleFactor = this.deviceList[index].variables[vIndex].scalefactor;
-        this.unitsSrc = this.deviceList[index].variables[vIndex].units_src;
-        if (this.deviceList[index].variables[vIndex].active === 1) {
-          this.active = true;
-        }
-        else {
-          this.active = false;
-        }
+        this.format = this.deviceList[index].variables[vIndex].format;
+        this.byteSwap = this.deviceList[index].variables[vIndex].byteSwap;
+        this.scaleFactor = this.deviceList[index].variables[vIndex].scaleFactor;
+        this.unitsSrc = this.deviceList[index].variables[vIndex].unitsSrc;
+        this.active = this.deviceList[index].variables[vIndex].active;
         this.dexma = false;
         this.dexVarId = '';
         this.dexUnits = '';
@@ -406,40 +414,47 @@
         for (let i = 0; i < this.deviceList[index].variables[vIndex].platforms.length; i++) {
           if (this.deviceList[index].variables[vIndex].platforms[i].name == 'dexma') {
             this.dexma = true;
-            this.dexVarId = this.deviceList[index].variables[vIndex].platforms[i].varid;
-            this.dexUnits = this.deviceList[index].variables[vIndex].platforms[i].units_dest;
-            this.dexScaleFactor = this.deviceList[index].variables[vIndex].platforms[i].scalefactor;
-            this.dexPrecision = this.deviceList[index].variables[vIndex].platforms[i].precision;
+            this.dexVarId = this.deviceList[index].variables[vIndex].platforms[i].varId;
+            this.dexUnits = this.deviceList[index].variables[vIndex].platforms[i].unitsDest;
+            this.dexScaleFactor = this.deviceList[index].variables[vIndex].platforms[i].scaleFactor;
           } else {
             this.thingsBoard = true;
-            this.thVarId = this.deviceList[index].variables[vIndex].platforms[i].varid;
-            this.thUnits = this.deviceList[index].variables[vIndex].platforms[i].units_dest;
-            this.thScaleFactor = this.deviceList[index].variables[vIndex].platforms[i].scalefactor;
-            this.thPrecision = this.deviceList[index].variables[vIndex].platforms[i].precision;                   
+            this.thVarId = this.deviceList[index].variables[vIndex].platforms[i].varId;
+            this.thUnits = this.deviceList[index].variables[vIndex].platforms[i].unitsDest;
+            this.thScaleFactor = this.deviceList[index].variables[vIndex].platforms[i].scaleFactor;                 
           }
         }
         this.editVardialog[index][vIndex] = true;
       },
       async eraseVar(index, vIndex) {
         this.eraseVardialog[index][vIndex] = false;
-        let device = this.deviceMap.get(this.deviceList[index].device)
+        let device = this.deviceMap.get(this.deviceList[index].name)
         device.variables.splice(vIndex, 1);
         await this.$store.commit('updateFile'); 
+      },
+      async updateActive (index, vIndex) {
+        this.deviceList[index].variables[vIndex].active = !this.deviceList[index].variables[vIndex].active;
+        await this.$store.commit('updateFile'); 
+        if (this.deviceList[index].variables[vIndex].active) {
+          alert('Variable activada')
+        } else {
+          alert('Variable desactivada')
+        }
       }
     }
   };
 </script>
 
 <template>
-  <h1 class="font-weight-bold">Llista de dispositius</h1>
+  <p class="text-h1 text-center mb-10 f">Llistat de dispositius</p>
   <v-row class="mb-2">
-    <v-col class="ml-12" cols="5">
-      <h2>Dispositiu</h2>
+    <v-col class="" cols="6">
+      <h2 class="ml-6">Dispositiu</h2>
     </v-col>
-    <v-col class="ml-10" cols="1">
+    <v-col class="" cols="1">
      <h2> ID</h2>
     </v-col>
-    <v-col class="ml-n8" cols="2">
+    <v-col class="" cols="3">
       <h2>Protocol</h2>
     </v-col>
   </v-row>
@@ -452,19 +467,19 @@
           <v-container class="list">
             <v-row>
               <v-col class="" cols="6">
-                <h3>{{ device.device }}</h3>
+                <span>{{ device.name }}</span>
               </v-col>
-              <v-col class="ml-n4" cols="1">
-                <h3>{{ device.unitId }}</h3>
+              <v-col class="" cols="1">
+                <span>{{ device.unitId }}</span>
               </v-col>
-              <v-col v-if="device.connparams.connectorType === 'TCP'" class="ml-n6" cols="2">
-                <h3>Modbus TCP</h3>
+              <v-col v-if="device.connParams.connectorType === 'TCP'" class="" cols="3">
+                <span>Modbus TCP</span>
               </v-col>
-              <v-col v-else class="ml-n6" cols="2">
-                <h3>Modbus RTU</h3>
+              <v-col v-else class="" cols="3">
+                <span>Modbus RTU</span>
               </v-col>
-              <v-col class="" cols="3">
-                <span class="pa-3">
+              <v-col class="" >
+                <span class="">
                 <v-btn class="mr-2" size="small" @click.stop="edit(index)" rounded="lg">
                   <v-icon
                     icon="mdi-pencil"
@@ -482,33 +497,32 @@
       </v-expansion-panel-title>
       <v-expansion-panel-text class="mt-6" rounded="lg">
         <v-row class="mb-2">
-          <v-col class="ml-5" cols="6">
+          <v-col class="" cols="6">
             <h2>Variable</h2>
           </v-col>
-          <v-col class="ml-n10" cols="2">
+          <v-col class="" cols="2">
           <h2> Activa</h2>
           </v-col>
-          <v-col class="ml-n8" cols="1">
-            <h2>Palatformes</h2>
+          <v-col class="" cols="1">
+            <h2>Platformes</h2>
           </v-col>
         </v-row>
         <v-container>
           <v-row v-for="(variable, vIndex) in device.variables" :key="vIndex">
             <v-col cols="6">
-              <h3>{{ variable.name }}</h3>
+              <span>{{ variable.name }}</span>
             </v-col>
-            <v-col cols="2" class="ml-n8 mt-n4">
-              <v-checkbox :model-value="true" disabled v-if="variable.active == 1"></v-checkbox>
-              <v-checkbox :model-value="false" disabled v-else></v-checkbox>
+            <v-col cols="2" class=" mt-n4">
+              <v-checkbox :model-value="variable.active" @update:model-value="updateActive(index, vIndex)"></v-checkbox>
             </v-col>
-              <v-col v-if="variable.platforms.length == 0">
-                <h3>
+              <v-col class="" v-if="variable.platforms.length == 0">
+                <span>
                   CAP
-                </h3>
+                </span>
               </v-col>
-              <v-col class="ml-n3" v-for="(platform, pIndex) in variable.platforms" :key="pIndex">
-                <h3 class="" v-if="variable.platforms[pIndex].name == 'dexma'">Dexma</h3>
-                <h3 v-if="variable.platforms[pIndex].name == 'thingsboard'">Thingsboard</h3>
+              <v-col class="" v-for="(platform, pIndex) in variable.platforms" :key="pIndex">
+                <span class="" v-if="variable.platforms[pIndex].name == 'dexma'">Dexma</span>
+                <span v-if="variable.platforms[pIndex].name == 'thingsboard'">Thingsboard</span>
               </v-col>
             <span class="d-flex justify-space-evenly">
               <v-btn class="mr-2" size="small" @click.stop="editVar(index, vIndex)" rounded="lg">
@@ -553,6 +567,14 @@
                     name="varName"
                     label="NOM VARIABLE"
                   ></v-text-field>
+                  <v-text-field
+                    rounded="lg"
+                    v-model="varAlias"
+                    :rules="varAliasRule"
+                    ref="varAlias"
+                    name="varAlias"
+                    label="ALIAS VARIABLE"
+                  ></v-text-field>
                   <v-select
                     rounded="lg"
                     v-model="fc"
@@ -587,6 +609,10 @@
                     :rules="formatRule"
                     label="FORMAT"
                   ></v-text-field>
+                  <v-checkbox
+                    v-model="byteSwap"
+                    label="BYTESWAP"
+                  ></v-checkbox>
                   <v-text-field
                     type="number"
                     rounded="lg"
@@ -642,16 +668,6 @@
                         :rules="scaleRule"
                         label="Factor d'escala de destí"
                       ></v-text-field>
-                      <v-text-field
-                        v-if="thingsBoard"
-                        type="number"
-                        rounded="lg"
-                        v-model="thPrecision"
-                        ref="thPrecision"
-                        name="thPrecision"
-                        :rules="precissionRule"
-                        label="Precisió"
-                      ></v-text-field>
                     </div>
                     <div>
                       <v-checkbox
@@ -687,16 +703,6 @@
                         :rules="scaleRule"
                         label="Factor d'escala de destí"
                       ></v-text-field>
-                      <v-text-field
-                        v-if="dexma"
-                        type="number"
-                        rounded="lg"
-                        v-model="dexPrecision"
-                        ref="dexPrecision"
-                        name="dexPrecision"
-                        :rules="precissionRule"
-                        label="Precisió"
-                      ></v-text-field>
                     </div>
                   </div>
                   <div class="d-flex flex-row">
@@ -722,7 +728,7 @@
       </v-expansion-panel-text>
       <v-dialog class="text-center" v-model="eraseDevicedialog[index]" persistent>
         <v-card>
-          <v-card-title class="font-weight-bold mt-10">El dispositiu {{ device.device }} s'eliminarà permanentment de la llista</v-card-title>
+          <v-card-title class="font-weight-bold mt-10">El dispositiu {{ device.name }} s'eliminarà permanentment de la llista</v-card-title>
           <v-container>
             <v-row class="mt-3 mb-3">
               <v-col>
@@ -758,6 +764,14 @@
               ref="location"
               name="location"
               label="LOCALITZACIÓ"
+            ></v-text-field>
+            <v-text-field
+              rounded="lg"
+              v-model="type"
+              :rules="typeRule"
+              ref="type"
+              name="type"
+              label="TIPUS DE DISPOSITIU"
             ></v-text-field>
             <v-text-field
               rounded="lg"

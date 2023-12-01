@@ -1,0 +1,14 @@
+version: '3'
+services:
+  vuetify:
+    build: ./Vuetify
+    container_name: ui
+    ports:
+      - "3000:3000"
+  file_server:
+    build: ./FileServer
+    container_name: file_server
+    ports:
+      - "4000:4000"
+    volumes:
+      - /home/root/config:/FileServer/data

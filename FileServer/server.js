@@ -16,7 +16,7 @@ app.post('/writeToFile', (req, res) => {
     console.log(data);
     //data = JSON.parse(JSON.stringify(data))
     const yamlData = yaml.dump(data, {forceQuotes: true})     
-    fs.appendFile('../Vuetify/IOTDevices/modbuses.yaml', yamlData, (err) => {
+    fs.appendFile('data/modbuses.yaml', yamlData, (err) => {
         if (err) {
             console.error(err);
             res.status(500).send('Error writing to file');
@@ -30,7 +30,7 @@ app.post('/updateFile', (req, res) => {
     let data = req.body; // Assuming you are sending the data in the request body
     const yamlData = yaml.dump(data, {forceQuotes: true}) 
     console.log('YAML:\n' + yamlData)
-    fs.writeFile('../Vuetify/IOTDevices/devices.yaml', yamlData, (err) => {
+    fs.writeFile('data/devices.yaml', yamlData, (err) => {
         if (err) {
             console.error(err);
             res.status(500).send('Error writing to file');
@@ -42,7 +42,7 @@ app.post('/updateFile', (req, res) => {
 
 app.get('/getDevices', (req, res) => {
     try {
-        const data = yaml.load(fs.readFileSync('../Vuetify/IOTDevices/devices.yaml', 'utf8'));
+        const data = yaml.load(fs.readFileSync('data/devices.yaml', 'utf8'));
         res.send(data);
       } catch (err) {
         console.error('Error reading file:', err);

@@ -7,6 +7,7 @@ import { mapState } from 'vuex';
       return {
       formData: undefined,
       deviceOrVar: false,
+      type: '',
       name: '',
       location: '',
       protocol: '',
@@ -18,6 +19,8 @@ import { mapState } from 'vuex';
       host: '',
       port: 502,
       varName: '',
+      varAlias: '',
+      bytewSwap: false,
       fc: '04 Input Registers',
       address: undefined,
       quantity: undefined,
@@ -39,12 +42,13 @@ import { mapState } from 'vuex';
       locationRule: [v => !!v || 'Localització invàlida'],
       unitIdRule: [
         v => {
-          if (Number.isInteger(Number(v)) && v >= 0 && v != '') {
+          if (Number.isInteger(Number(v)) && Number(v) >= 1  && Number(v) <= 255 && v != '') {
             return true;
           }
           return 'Unit ID invàlid';
         },
       ],
+      typeRule: [v => !!v || 'Tipus invàlid'],
       protocolRule: [v => !!v || 'Protocol obligatori'],
       baudRateRule: [v => !!v || 'Baud Rate obligatori'],
       dataBitsRule: [v => !!v || 'Data Bitsobligatori'],
@@ -68,6 +72,7 @@ import { mapState } from 'vuex';
         },
       ],
       varNameRule: [v => !!v || 'Nom invàlid'],
+      varAliasRule: [v => !!v || 'Alias invàlid'],
       addressRule: [
         v => {
           if (Number.isInteger(Number(v)) && v >= 0 && v != '') {
@@ -78,7 +83,7 @@ import { mapState } from 'vuex';
       ],
       quantityRule: [
         v => {
-          if (Number.isInteger(Number(v)) && v >= 0 && v != '') {
+          if (Number.isInteger(Number(v)) && v >= 1 && v != '') {
             return true;
           }
           return 'Quantitat invàlida';
@@ -115,16 +120,25 @@ import { mapState } from 'vuex';
   },
   computed: {
       ...mapState(['deviceMap']),
+      ...mapState(['gateway']),
+  },
+  created () {
+    if (this.gateway === undefined) {
+
+    }
   },
   methods: {  
     async validateVarInfo() {
       if (this.varName == '') {
         return
       }
+      if (this.varAlias == '') {
+        return
+      }
       if (!Number.isInteger(Number(this.address)) || Number(this.address) < 0 || !!this.address === false) {
         return 
       }
-      if (!Number.isInteger(Number(this.quantity)) || Number(this.address) < 0 || !!this.quantity === false) {
+      if (!Number.isInteger(Number(this.quantity)) || Number(this.address) < 1 || !!this.quantity === false) {
         return 
       }
       if (this.format == '') {
@@ -136,13 +150,12 @@ import { mapState } from 'vuex';
       if (this.unitsSrc == '') {
         return
       }
-      /*
-      if (this.thingsBoard == false && this.dexma == false) {
-        alert('Selecciona almenys una plataforma')
-        return
-      }*/
       let device = this.name + '@' + this.location;
       if (this.thingsBoard) {
+        if (this.gateway === undefined) {
+          alert('Emplena el token de Thingsboard a la pàgina d\'informació de l\'edifici si vols poder visualtizar variables a Thingsboard')
+          return;
+        }
         if (this.thVarId == '') {
           return
         }
@@ -161,11 +174,15 @@ import { mapState } from 'vuex';
         if (Number(this.thScaleFactor) < 0  || !!this.scaleFactor === false) {
           return
         }
-        if (!Number.isInteger(Number(this.thPrecision)) || Number(this.thPrecision) < 0 || !!this.thPrecision === false) {
+        /*if (!Number.isInteger(Number(this.thPrecision)) || Number(this.thPrecision) < 0 || !!this.thPrecision === false) {
           return 
-        }
+        }*/
       }
       if (this.dexma) {
+        if (this.gateway === undefined) {
+          alert('Emplena el token de Dexma a la pàgina d\'informació de l\'edifici si vols poder visualtizar variables a Dexma')
+          return;
+        }
         if (!Number.isInteger(Number(this.dexVarId)) || Number(this.dexVarId) < 0 || !!this.dexVarId === false) {
           return
         }
@@ -184,15 +201,9 @@ import { mapState } from 'vuex';
         if (Number(this.dexScaleFactor) < 0 || !!this.dexScaleFactor === false) {
           return
         }
-        if (!Number.isInteger(Number(this.dexPrecision)) || Number(this.dexPrecision) < 0 || !!this.dexPrecision === false) {
+        /*if (!Number.isInteger(Number(this.dexPrecision)) || Number(this.dexPrecision) < 0 || !!this.dexPrecision === false) {
           return 
-        }
-      }
-      let on;
-      if (this.active){
-        on = 1;
-      } else{
-        on = 0;
+        }*/
       }
       let functionCode;
       if (this.fc === '04 Input Registers') {
@@ -203,13 +214,14 @@ import { mapState } from 'vuex';
       }
       let varData = {
         name: this.varName,
+        alias: this.varAlias,
         fc: Number(functionCode),
         address: this.address,
         quantity: this.quantity,
-        protocol: this.format,
-        scalefactor: this.scaleFactor,
-        units_src: this.unitsSrc,
-        active: on,
+        format: this.format,
+        scaleFactor: this.scaleFactor,
+        unitsSrc: this.unitsSrc,
+        active: this.active,
         platforms: [
         ],
       };
@@ -217,19 +229,17 @@ import { mapState } from 'vuex';
       if(this.dexma) {
         varData.platforms.push({
           name: 'dexma',
-          varid:  Number(this.dexVarId),
-          units_dest: this.dexUnits,
-          scalefactor:  Number(this.dexScaleFactor),
-          precision:  Number(this.dexPrecision),
+          varId:  Number(this.dexVarId),
+          unitsDest: this.dexUnits,
+          scaleFactor:  Number(this.dexScaleFactor)
         })
       }
       if (this.thingsBoard) {
         varData.platforms.push({
           name: 'thingsboard',
-          varid: this.thVarId,
-          units_dest: this.thUnits,
-          scalefactor: Number(this.thScaleFactor),
-          precision:  Number(this.thPrecision),
+          varId: this.thVarId,
+          unitsDest: this.thUnits,
+          scaleFactor: Number(this.thScaleFactor)
         })
       }
       this.formData[0].variables.push(varData);
@@ -240,6 +250,8 @@ import { mapState } from 'vuex';
       alert('Variable afegida')
   
       this.varName = '';
+      this.varAlias = '';
+      this.bytewSwap = false;
       this.fc = '04 Input Registers';
       this.address = '';
       this.quantity = '';
@@ -266,8 +278,10 @@ import { mapState } from 'vuex';
       if (this.location == '') {
       return false;
       }
-      console.log(this.unitId)
-      if (!Number.isInteger(Number(this.unitId)) || Number(this.unitId) < 0 || !!this.unitId === false) {
+      if (this.type == '') {
+      return false;
+      }
+      if (!Number.isInteger(Number(this.unitId)) || Number(this.unitId) < 1|| Number(this.unitId)  > 255  || !!this.unitId === false) {
         return false;
       }
       if (this.protocol == undefined || this.protocol == '') {
@@ -312,11 +326,13 @@ import { mapState } from 'vuex';
         }
         this.formData = [
           {
-            device: String(this.name + '@' + this.location),
-            deviceName: String(this.name),
+            name: String(this.name + '@' + this.location),
+            code: String(this.name),
             location: String(this.location),
+            type: String(this.type),
+            protocol: 'modbus_rtu',
             unitId: Number(this.unitId),
-            connparams: {
+            connParams: {
               connectorType: 'SERIAL',
               serialBaudrate: Number(this.serialBaudrate),
               serialDatabits: Number(this.serialDatabits),
@@ -332,11 +348,13 @@ import { mapState } from 'vuex';
         this.formData =
           [
             {
-              device: String(this.name + '@' + this.location),
-              deviceName: String(this.name),
+              name: String(this.name + '@' + this.location),
+              code: String(this.name),
               location: String(this.location),
+              type: String(this.type),
+              protocol: 'modbus_tcp',
               unitId: Number(this.unitId),
-              connparams: {
+              connParams: {
                 connectorType: 'TCP',
                 tcpHost: String(this.host),
                 tcpPort: Number(this.port),
@@ -353,8 +371,8 @@ import { mapState } from 'vuex';
 </script>
 
 <template>
-  <h1 class="font-weight-bold" v-if="!deviceOrVar">Afegir Dispositiu</h1>
-  <h1 class="font-weight-bold" v-if="deviceOrVar">Afegir Variable</h1>
+  <p class="text-h1 text-center mb-10 f" v-if="!deviceOrVar">Afegir Dispositiu</p>
+  <p class="text-h1 text-center mb-10 f" v-if="deviceOrVar">Afegir Variable</p>
   <h1>{{ name }}@{{ location }}</h1>
   <v-container class="container">
     <v-form v-if="!deviceOrVar" ref="form" @submit.prevent="validateInfo">
@@ -373,6 +391,14 @@ import { mapState } from 'vuex';
         ref="location"
         name="location"
         label="LOCALITZACIÓ"
+      ></v-text-field>
+      <v-text-field
+        rounded="lg"
+        v-model="type"
+        :rules="typeRule"
+        ref="type"
+        name="type"
+        label="TIPUS DE DISPOSITIU"
       ></v-text-field>
       <v-text-field
         rounded="lg"
@@ -462,6 +488,14 @@ import { mapState } from 'vuex';
         name="varName"
         label="NOM VARIABLE"
       ></v-text-field>
+      <v-text-field
+        rounded="lg"
+        v-model="varAlias"
+        :rules="varAliasRule"
+        ref="varAlias"
+        name="varAlias"
+        label="ALIAS VARIABLE"
+      ></v-text-field>
       <v-select
         rounded="lg"
         v-model="fc"
@@ -496,6 +530,10 @@ import { mapState } from 'vuex';
         :rules="formatRule"
         label="FORMAT"
       ></v-text-field>
+      <v-checkbox
+        v-model="bytewSwap"
+        label="BYTESWAP"
+      ></v-checkbox>
       <v-text-field
         type="number"
         rounded="lg"
@@ -551,16 +589,6 @@ import { mapState } from 'vuex';
             :rules="scaleRule"
             label="Factor d'escala de destí"
           ></v-text-field>
-          <v-text-field
-            v-if="thingsBoard"
-            type="number"
-            rounded="lg"
-            v-model="thPrecision"
-            ref="thPrecision"
-            name="thPrecision"
-            :rules="precissionRule"
-            label="Precisió"
-          ></v-text-field>
         </div>
         <div>
           <v-checkbox
@@ -595,16 +623,6 @@ import { mapState } from 'vuex';
             name="dexScaleFactor"
             :rules="scaleRule"
             label="Factor d'escala de destí"
-          ></v-text-field>
-          <v-text-field
-            v-if="dexma"
-            type="number"
-            rounded="lg"
-            v-model="dexPrecision"
-            ref="dexPrecision"
-            name="dexPrecision"
-            :rules="precissionRule"
-            label="Precisió"
           ></v-text-field>
         </div>
       </div>

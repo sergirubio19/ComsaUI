@@ -1,6 +1,7 @@
 version: '3'
 services:
   vuetify:
+    image: emanagerui:1.0
     build:
       context: ./Vuetify
       dockerfile: Dockerfile
@@ -8,6 +9,7 @@ services:
     ports:
       - "3000:3000"
   file_server:
+    image: emanagerfs:1.0
     build:
       context: ./FileServer
       dockerfile: Dockerfile

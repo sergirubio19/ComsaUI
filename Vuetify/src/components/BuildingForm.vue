@@ -5,7 +5,6 @@ import { mapState } from 'vuex';
   export default {
   data() {
       return {
-        set: false,
         buildingName: '',
         buildingKey: '',
         thingsBoardToken: '',
@@ -20,18 +19,18 @@ import { mapState } from 'vuex';
   },
   computed: {
     ...mapState(['building']),
+    ...mapState(['gateway']),
   },
   created () {
-    console.log(this.building)
-    if (this.building == undefined) {
+    if (this.building === undefined) {
         this.set = true;
     }
     else {
         this.buildingName = this.building.name;
         this.buildingKey = this.building.key;
-        this.thingsBoardToken = this.building.thingsBoardToken;
-        this.dexmaToken = this.building.dexmaToken;
-        this.dexmaKey = this.building.dexmaKey;
+        this.thingsBoardToken = this.gateway.thingsboard.token;
+        this.dexmaToken = this.gateway.dexma.token;
+        this.dexmaKey = this.gateway.dexma.key;
     }
   },
   methods: {
@@ -51,14 +50,22 @@ import { mapState } from 'vuex';
         if (this.dexmaKey == '') {
             return false;
         }
-        const buildingObj = {
-            name: this.buildingName,
-            key: this.buildingKey,
-            thingsBoardToken: this.thingsBoardToken,
-            dexmaToken: this.dexmaToken,
-            dexmaKey: this.dexmaKey,
+        const object = { 
+            building: {
+                name: this.buildingName,
+                key: this.buildingKey
+            },
+            gateway: {
+                dexma: {
+                    key: this.dexmaKey,
+                    token: this.dexmaToken
+                },
+                thingsboard: {
+                    token: this.thingsBoardToken
+                }
+            }
         }
-        this.$store.commit('setBuilding', buildingObj);
+        this.$store.commit('setBuilding', object);
         await this.$store.commit('updateFile');
         this.set = !this.set;
         alert('Edifici establert')
@@ -71,25 +78,8 @@ import { mapState } from 'vuex';
 
 <template>
     <v-container>
-        <v-sheet class="mt-n5" rounded="lg">
-            <v-row>
-              <v-col cols="7">
-                <h1 class="font-weight-bold">{{ this.building.name }}</h1>
-                <h2 class="font-weight-bold">{{ this.building.key }}</h2>
-              </v-col>  
-              <v-col cols="1">
-                <v-btn class="mr-2" size="large" @click="set=!set" rounded="lg">
-                    <v-icon
-                      icon="mdi-pencil"
-                    ></v-icon>
-                  </v-btn>
-              </v-col>
-            </v-row>
-            
-        </v-sheet>
-        <v-dialog class="text-center" v-model="set" persistent>
             <v-sheet class="pa-10" rounded="lg">
-                <h1 class="font-weight-bold">Establir Edifici</h1>
+                <p class="text-h1 text-center mb-10 f">Establir Edifici</p>
                 <v-form ref="buildingForm" @submit.prevent="validateInfo">
                     <v-text-field
                     rounded="lg"
@@ -109,7 +99,7 @@ import { mapState } from 'vuex';
                     ></v-text-field>
                     <div class="d-flex justify-space-around">
                         <div id="fl">
-                            <h2>
+                            <h2 class="text-center mb-5">
                                 THINGSBOARD
                             </h2>
                             <v-text-field
@@ -122,7 +112,7 @@ import { mapState } from 'vuex';
                             ></v-text-field>
                         </div>
                         <div id="fl">
-                            <h2>
+                            <h2 class="text-center mb-5">
                                 DEXMA
                             </h2>
                             <v-text-field
@@ -144,20 +134,9 @@ import { mapState } from 'vuex';
                             ></v-text-field>
                         </div>
                     </div>
-                    <div class="d-flex flex-row">
-                        <v-btn type="submit" size="large" color="#006064" rounded="lg">Establir</v-btn>
-                        <v-btn class="me-2 ml-2" type="button" @click="set=!set" size="large" color="#006064" rounded="lg">
-                            <v-icon
-                            start
-                            icon="mdi-arrow-left"
-                            ></v-icon>
-                            Enrere
-                        </v-btn>
-                    </div>
+                    <v-btn type="submit" block size="large" color="#006064" rounded="lg">Establir</v-btn>
                 </v-form>
             </v-sheet>
-        </v-dialog>
-    
    </v-container>
 </template>
 
